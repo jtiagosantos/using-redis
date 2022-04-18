@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserRepository } from '../repositories/UserRepository';
+import { cache } from '../services/cache';
 
 class Controller {
   public async getAllUsers(
@@ -8,8 +9,20 @@ class Controller {
     next: NextFunction,
   ) {
     try {
-      const users = await UserRepository.index();
+      const usersInMemoryCache = await cache.get('users');
 
+      if (!usersInMemoryCache) {
+        const users = await UserRepository.index();
+
+        await cache.set('users', JSON.stringify(users));
+
+        response.status(200).json(users);
+
+        return;
+      }
+
+      const users = JSON.parse(usersInMemoryCache);
+      
       response.status(200).json(users);
     } catch(error: any) {
       response.status(500).json({ error: error.message });
@@ -22,6 +35,8 @@ class Controller {
     next: NextFunction,
   ) {
     try {
+      await cache.set('users', '');
+
       const { body } = request;
 
       const newUser = await UserRepository.create(body);
