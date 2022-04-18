@@ -1,9 +1,16 @@
 import express from 'express';
+import { Mongodb } from './database/mongodb/config';
+import { CONSTANTS } from './constants';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const mongodb = new Mongodb();
+const { API: { PORT } } = CONSTANTS;
 
-app.listen(
-  PORT, 
-  () => console.log(`Server running on port ${PORT}`)
-);
+(async () => {
+  await mongodb.connection();
+
+  app.listen(
+    PORT, 
+    () => console.log(`Server running on port ${PORT}`)
+  );
+})();
