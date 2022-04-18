@@ -5,4 +5,8 @@ export const CONSTANTS = {
   MONGODB: {
     CONNECTION: 'mongodb://db:27017/using-redis',
   },
+  REDIS: {
+    PORT: 6379,
+    HOST: 'redis-server',
+  },
 };
